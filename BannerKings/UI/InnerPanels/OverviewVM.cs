@@ -66,7 +66,7 @@ namespace BannerKings.UI
                 CultureInfo.Add(new InformationElement("Cultural Assimilation:", FormatValue(data.CultureData.GetAssimilation(Hero.MainHero.Culture)),
                     "Percentage of the population that shares culture with you. Assimilating foreign settlements requires a competent governor that shares your culture."));
 
-                HashSet<BannerKingsDecision> decisions = BannerKingsConfig.Instance.PolicyManager.GetDefaultDecisions(settlement);
+                List<BannerKingsDecision> decisions = BannerKingsConfig.Instance.PolicyManager.GetDefaultDecisions(settlement);
                 foreach (BannerKingsDecision decision in decisions)
                 {
                     DecisionElement vm = new DecisionElement()

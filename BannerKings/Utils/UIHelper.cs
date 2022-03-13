@@ -47,7 +47,7 @@ namespace BannerKings.Utils
 		private static string GetOwnership(Hero hero, FeudalTitle title)
         {
 			string ownership = "";
-			if (title.deJure == hero && title.deFacto == hero)
+			if (title.deJure == hero && title.DeFacto == hero)
 				ownership = "Full ownership";
 			else if (title.deJure == hero)
 				ownership = "De Jure ownership";

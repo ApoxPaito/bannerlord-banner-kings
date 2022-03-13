@@ -28,7 +28,7 @@ namespace BannerKings.Models
 
         public LegitimacyType GetRuleType(FeudalTitle title)
         {
-            Hero hero = title.deFacto;
+            Hero hero = title.DeFacto;
             bool foreigner;
             if (title.fief != null)
                 foreigner = title.fief.Culture != hero.Culture;

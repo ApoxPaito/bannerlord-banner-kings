@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
+using TaleWorlds.SaveSystem;
 
 /*
     BSD 3-Clause License
@@ -43,9 +44,11 @@ namespace BannerKings.Managers
 {
     public class PopulationManager
     {
-        private Dictionary<Settlement, PopulationData> POPS { get; set; }
+        [SaveableField(1)]
+        private Dictionary<Settlement, PopulationData> POPS;
 
-        private List<MobileParty> CARAVANS { get; set; }
+        [SaveableField(2)]
+        private List<MobileParty> CARAVANS;
 
         public PopulationManager(Dictionary<Settlement, PopulationData> pops, List<MobileParty> caravans)
         {

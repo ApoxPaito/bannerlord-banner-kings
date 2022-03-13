@@ -172,8 +172,8 @@ namespace BannerKings.Models
 				FeudalTitle title = BannerKingsConfig.Instance.TitleManager.GetTitle(village3.Settlement);
 				if (title != null)
                 {
-					owner = title.deFacto;
-					if (title.deFacto != clan.Leader)
+					owner = title.DeFacto;
+					if (title.DeFacto != clan.Leader)
 						leaderOwned = false;
 				}
 

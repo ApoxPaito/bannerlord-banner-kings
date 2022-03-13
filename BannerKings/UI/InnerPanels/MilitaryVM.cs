@@ -62,7 +62,7 @@ namespace BannerKings.UI
             ManpowerInfo.Add(new InformationElement("Draft Efficiency:", base.FormatValue(base.data.MilitaryData.DraftEfficiency.ResultNumber),
                    "How quickly recruits are replenished. Increased efficiency will allow for faster recruitment, so long manpower is available."));
 
-            HashSet<BannerKingsDecision> decisions = BannerKingsConfig.Instance.PolicyManager.GetDefaultDecisions(settlement);
+            List<BannerKingsDecision> decisions = BannerKingsConfig.Instance.PolicyManager.GetDefaultDecisions(settlement);
             if (base.HasTown)
             {
                 SiegeInfo.Add(new InformationElement("Storage Limit:", settlement.Town.FoodStocksUpperLimit().ToString(),

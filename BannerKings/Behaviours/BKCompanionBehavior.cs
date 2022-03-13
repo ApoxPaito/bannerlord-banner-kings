@@ -245,6 +245,7 @@ namespace BannerKings.Behaviors
             }
         }
 
+        /*
         [HarmonyPatch(typeof(Settlement))]
         [HarmonyPatch("Owner", MethodType.Getter)]
         class VillageOwnerPatch
@@ -253,11 +254,9 @@ namespace BannerKings.Behaviors
             {
                 if (__instance.IsVillage && BannerKingsConfig.Instance.TitleManager != null)
                 {
-                    FeudalTitle title = BannerKingsConfig.Instance.TitleManager.GetTitle(__instance);
-                    if (title != null)
-                        __result = title.deFacto;
+
                 }
             }
-        }
+        } */
     }
 }

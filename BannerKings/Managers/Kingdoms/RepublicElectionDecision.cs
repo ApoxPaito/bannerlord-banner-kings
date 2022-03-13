@@ -5,11 +5,13 @@ using System.Linq;
 using TaleWorlds.Localization;
 using TaleWorlds.Library;
 using TaleWorlds.Core;
+using TaleWorlds.SaveSystem;
 
 namespace BannerKings.Managers.Kingdoms
 {
     public class RepublicElectionDecision : KingSelectionKingdomDecision
     {
+		[SaveableField(1)]
 		protected Clan toExclude;
 		public override TextObject GetChooseTitle()
 		{

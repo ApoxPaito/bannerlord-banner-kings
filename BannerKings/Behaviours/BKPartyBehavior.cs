@@ -87,7 +87,12 @@ namespace BannerKings.Behaviours
                             party.Ai.SetAIState(AIState.VisitingVillage);
                             if (target.Village.VillageState == Village.VillageStates.Looted || target.Village.VillageState == Village.VillageStates.BeingRaided)
                                 party.SetMoveModeHold();
-                            else PartyKeepMoving(ref party, ref target);
+                            else
+                            {
+                                if (target.IsVillage) party.Ai.SetAIState(AIState.VisitingVillage);
+                                else party.Ai.SetAIState(AIState.VisitingNearbyTown);
+                                party.SetMoveGoToSettlement(target);
+                            }
                         }
                         else if (!target.IsVillage)
                         {

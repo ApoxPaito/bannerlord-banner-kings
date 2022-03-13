@@ -5,6 +5,7 @@ using TaleWorlds.Core;
 using TaleWorlds.Library;
 using static BannerKings.Managers.TitleManager;
 using BannerKings.Populations;
+using TaleWorlds.SaveSystem;
 
 /*
     BSD 3-Clause License
@@ -43,7 +44,10 @@ namespace BannerKings.Managers.Court
 {
     public class CouncilData : BannerKingsData
     {
+        [SaveableField(1)]
         private Clan clan;
+
+        [SaveableField(2)]
         private List<CouncilMember> members;
 
         public CouncilData(Clan clan, Hero marshall = null, Hero chancellor = null, Hero steward = null, Hero spymaster = null)
@@ -187,7 +191,10 @@ namespace BannerKings.Managers.Court
 
     public class CouncilMember
     {
+        [SaveableField(1)]
         private Hero member;
+
+        [SaveableField(2)]
         private CouncilPosition position;
 
         public CouncilMember(Hero member, CouncilPosition position)

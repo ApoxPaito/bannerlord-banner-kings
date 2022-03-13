@@ -60,6 +60,7 @@ namespace BannerKings.Behaviors
         private PopulationManager populationManager = null;
         private PolicyManager policyManager = null;
         private TitleManager titleManager = null;
+        private CourtManager courtManager = null;
         private static float actionGold = 0f;
         private static int actionHuntGame = 0;
         private static CampaignTime actionStart = CampaignTime.Now;
@@ -72,30 +73,30 @@ namespace BannerKings.Behaviors
 
         public override void SyncData(IDataStore dataStore)
         {
-            /*
+            
             if (dataStore.IsSaving)
             {
                 if (BannerKingsConfig.Instance.PopulationManager != null && BannerKingsConfig.Instance.PolicyManager != null)
                 {
                     populationManager = BannerKingsConfig.Instance.PopulationManager;
                     policyManager = BannerKingsConfig.Instance.PolicyManager;
+                    titleManager = BannerKingsConfig.Instance.TitleManager;
+                    courtManager = BannerKingsConfig.Instance.CourtManager;
                 }
             }
 
             dataStore.SyncData("pops", ref populationManager);
             dataStore.SyncData("policies", ref policyManager);
+            dataStore.SyncData("titles", ref titleManager);
+            dataStore.SyncData("courts", ref courtManager);
 
             if (dataStore.IsLoading)
             {
-                if (populationManager == null && policyManager == null)
-                {
-                    BannerKingsConfig.Instance.InitManagers(new Dictionary<Settlement, PopulationData>(), new List<MobileParty>(),
-                    new Dictionary<Settlement, HashSet<BannerKingsDecision>>(), new Dictionary<Settlement, HashSet<BannerKingsPolicy>>(), 
-                    new HashSet<FeudalTitle>(), new Dictionary<Hero, HashSet<FeudalTitle>>(),
-                    new Dictionary<Kingdom, FeudalTitle>());
-                }
-                else BannerKingsConfig.Instance.InitManagers(populationManager, policyManager, titleManager);
-            }*/
+                if (populationManager == null || policyManager == null || titleManager == null || courtManager == null)
+                    BannerKingsConfig.Instance.InitManagers();
+                
+                else BannerKingsConfig.Instance.InitManagers(populationManager, policyManager, titleManager, courtManager);
+            }
         }
 
         
@@ -360,11 +361,7 @@ namespace BannerKings.Behaviors
                         PopulationData data = BannerKingsConfig.Instance.PopulationManager.GetPopData(settlement);
                         settlement.Culture = data.CultureData.DominantCulture;
                     }
-            }
-            
-            if (BannerKingsConfig.Instance.PolicyManager == null || BannerKingsConfig.Instance.TitleManager == null)
-                BannerKingsConfig.Instance.InitManagers();
-                
+            }     
 
             BuildingType retinueType = MBObjectManager.Instance.GetObjectTypeList<BuildingType>().FirstOrDefault(x => x == Helpers.Helpers._buildingCastleRetinue);
             if (retinueType == null)

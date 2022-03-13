@@ -50,23 +50,32 @@ namespace BannerKings.Populations
 {
     public class PopulationData : BannerKingsData
     {
-        [SaveableProperty(1)]
-        private List<PopulationClass> classes { get; set; }
-        [SaveableProperty(2)]
-        private float stability { get; set; }
-        [SaveableProperty(3)]
-        private Settlement settlement { get; set; }
-        [SaveableProperty(4)]
-        private EconomicData economicData { get; set; }
-        [SaveableProperty(5)]
-        private CultureData cultureData { get; set; }
-        [SaveableProperty(6)]
-        private MilitaryData militaryData { get; set; }
-        [SaveableProperty(7)]
-        private LandData landData { get; set; }
-        [SaveableProperty(8)]
-        private TournamentData tournamentData { get; set; }
-        private VillageData villageData { get; set; }
+        [SaveableField(1)]
+        private List<PopulationClass> classes;
+
+        [SaveableField(2)]
+        private float stability;
+
+        [SaveableField(3)]
+        private Settlement settlement;
+
+        [SaveableField(4)]
+        private EconomicData economicData;
+
+        [SaveableField(5)]
+        private CultureData cultureData;
+
+        [SaveableField(6)]
+        private MilitaryData militaryData;
+
+        [SaveableField(7)]
+        private LandData landData;
+
+        [SaveableField(8)]
+        private TournamentData tournamentData;
+
+        [SaveableField(9)]
+        private VillageData villageData;
 
         public PopulationData(List<PopulationClass> classes, Settlement settlement, float assimilation, List<CultureDataClass> cultures = null, Guild guild = null)
         {
@@ -236,11 +245,11 @@ namespace BannerKings.Populations
 
     public class PopulationClass
     {
-        [SaveableProperty(1)]
-        public PopType type { get; set; }
+        [SaveableField(1)]
+        public PopType type;
 
-        [SaveableProperty(2)]
-        public int count { get; set; }
+        [SaveableField(2)]
+        public int count;
 
         public PopulationClass(PopType type, int count)
         {
@@ -375,9 +384,14 @@ namespace BannerKings.Populations
 
     public class CultureDataClass
     {
-        private CultureObject culture { get; set; }
-        private float assimilation { get; set; }
-        private float acceptance { get; set; }
+        [SaveableField(1)]
+        private CultureObject culture;
+
+        [SaveableField(2)]
+        private float assimilation;
+
+        [SaveableField(3)]
+        private float acceptance;
 
         public CultureDataClass(CultureObject culture, float assimilation, float acceptance)
         {
@@ -409,16 +423,22 @@ namespace BannerKings.Populations
 
     public class EconomicData : BannerKingsData
     {
-        private Settlement settlement { get; set; }
-        private Guild guild { get; set; }
-        private float[] satisfactions { get; set; }
-        private float stateSlaves { get; set; }
+        [SaveableField(1)]
+        private Settlement settlement;
+
+        [SaveableField(2)]
+        private Guild guild;
+
+        [SaveableField(3)]
+        private float[] satisfactions;
+
+        [SaveableField(4)]
+        private float stateSlaves;
 
         public EconomicData(Settlement settlement,
             Guild guild = null)
         {
             this.settlement = settlement;
-            this.guild = new Guild(settlement, Managers.Institutions.GuildType.Merchants, null);
             this.satisfactions = new float[] { 0.5f, 0.5f, 0.5f,0.5f };
             this.stateSlaves = MBRandom.RandomFloatRanged(0.4f, 0.6f);
         }
@@ -484,9 +504,16 @@ namespace BannerKings.Populations
 
     public class MilitaryData : BannerKingsData
     {
+        [SaveableField(1)]
         private Settlement settlement;
+
+        [SaveableField(2)]
         private int peasantManpower;
+
+        [SaveableField(3)]
         private int nobleManpower;
+
+        [SaveableField(4)]
         private List<SiegeEngineType> engines;
 
         public MilitaryData(Settlement settlement, int peasantManpower, int nobleManpower)
@@ -569,10 +596,19 @@ namespace BannerKings.Populations
 
     public class VillageData : BannerKingsData
     {
+        [SaveableField(1)]
         Village village;
+
+        [SaveableField(2)]
         List<VillageBuilding> buildings;
+
+        [SaveableField(3)]
         VillageBuilding current;
+
+        [SaveableField(4)]
         VillageBuilding currentDefault;
+
+        [SaveableField(5)]
         Queue<Building> inProgress;
 
         public VillageData(Village village)
@@ -651,13 +687,28 @@ namespace BannerKings.Populations
 
     public class LandData : BannerKingsData
     {
+        [SaveableField(1)]
         private PopulationData data;
+
+        [SaveableField(2)]
         private float farmland;
+
+        [SaveableField(3)]
         private float pasture;
+
+        [SaveableField(4)]
         private float woodland;
+
+        [SaveableField(5)]
         private float fertility;
+
+        [SaveableField(6)]
         private float terrainDifficulty;
+
+        [SaveableField(7)]
         TerrainType terrainType;
+
+        [SaveableField(8)]
         private float[] composition;
 
         public LandData(PopulationData data)
@@ -804,8 +855,13 @@ namespace BannerKings.Populations
     public class TournamentData : BannerKingsData
     {
         private Town town;
+        [SaveableField(1)]
         private ItemRoster roster;
+
+        [SaveableField(2)]
         private ItemObject prize;
+
+        [SaveableField(3)]
         private bool active;
 
         public TournamentData(Town town)

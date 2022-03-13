@@ -6,6 +6,7 @@ using static BannerKings.Managers.Policies.BKGarrisonPolicy;
 using static BannerKings.Managers.Policies.BKMilitiaPolicy;
 using static BannerKings.Managers.Policies.BKCriminalPolicy;
 using BannerKings.Managers.Decisions;
+using TaleWorlds.SaveSystem;
 
 /*
     BSD 3-Clause License
@@ -44,8 +45,11 @@ namespace BannerKings.Managers
 {
     public class PolicyManager
     {
-        private Dictionary<Settlement, HashSet<BannerKingsDecision>> SettlementDecisions { get; set; }
-        private Dictionary<Settlement, HashSet<BannerKingsPolicy>> SettlementPolicies { get; set; }
+        [SaveableField(1)]
+        private Dictionary<Settlement, List<BannerKingsDecision>> settlementDecisions;
+
+        [SaveableField(2)]
+        private Dictionary<Settlement, List<BannerKingsPolicy>> settlementPolicies;
 
         private IEnumerable<string> TownDecisions
         {
@@ -101,32 +105,32 @@ namespace BannerKings.Managers
             }
         }
 
-        public PolicyManager(Dictionary<Settlement, HashSet<BannerKingsDecision>> DECISIONS, Dictionary<Settlement, HashSet<BannerKingsPolicy>> POLICIES)
+        public PolicyManager(Dictionary<Settlement, List<BannerKingsDecision>> DECISIONS, Dictionary<Settlement, List<BannerKingsPolicy>> POLICIES)
         {
-            this.SettlementDecisions = DECISIONS;
-            this.SettlementPolicies = POLICIES;
+            this.settlementDecisions = DECISIONS;
+            this.settlementPolicies = POLICIES;
         }
 
         public void InitializeSettlement(Settlement settlement)
         {
-            if (!this.SettlementDecisions.ContainsKey(settlement))
+            if (!this.settlementDecisions.ContainsKey(settlement))
                 InitializeDecisions(settlement);
-            if (!SettlementPolicies.ContainsKey(settlement))
+            if (!settlementPolicies.ContainsKey(settlement))
                 InitializePolicies(settlement);
         }
 
-        public bool IsSettlementPoliciesSet(Settlement settlement) => SettlementDecisions.ContainsKey(settlement);
-        public HashSet<BannerKingsDecision> GetDefaultDecisions(Settlement settlement)
+        public bool IsSettlementPoliciesSet(Settlement settlement) => settlementDecisions.ContainsKey(settlement);
+        public List<BannerKingsDecision> GetDefaultDecisions(Settlement settlement)
         {
-            if (!SettlementDecisions.ContainsKey(settlement))
+            if (!settlementDecisions.ContainsKey(settlement))
                 InitializeDecisions(settlement);
 
-            return SettlementDecisions[settlement];
+            return settlementDecisions[settlement];
         }
 
         private void InitializeDecisions(Settlement settlement)
         {
-            HashSet<BannerKingsDecision> decisions = new HashSet<BannerKingsDecision>();
+            List<BannerKingsDecision> decisions = new List<BannerKingsDecision>();
             if (settlement.IsVillage)
             {
                 foreach (string id in VillageDecisions)
@@ -140,25 +144,25 @@ namespace BannerKings.Managers
                 foreach (string id in TownDecisions)
                     decisions.Add(this.GenerateDecision(settlement, id));
             }
-            this.SettlementDecisions.Add(settlement, decisions);
+            this.settlementDecisions.Add(settlement, decisions);
         }
 
         private void InitializePolicies(Settlement settlement)
         {
-            HashSet<BannerKingsPolicy> policies = new HashSet<BannerKingsPolicy>();
+            List<BannerKingsPolicy> policies = new List<BannerKingsPolicy>();
 
             foreach (string id in Policies)
                 policies.Add(this.GeneratePolicy(settlement, id));
      
-            this.SettlementPolicies.Add(settlement, policies);
+            this.settlementPolicies.Add(settlement, policies);
         }
 
         public int GetActiveCostlyDecisionsNumber(Settlement settlement)
         {
-            if (this.SettlementDecisions.ContainsKey(settlement))
+            if (this.settlementDecisions.ContainsKey(settlement))
             {
                 int i = 0;
-                foreach (BannerKingsDecision decision in this.SettlementDecisions[settlement])
+                foreach (BannerKingsDecision decision in this.settlementDecisions[settlement])
                     if (decision.Enabled)
                     {
                         string id = decision.GetIdentifier();
@@ -179,17 +183,17 @@ namespace BannerKings.Managers
         public BannerKingsPolicy GetPolicy(Settlement settlement, string policyType)
         {
             BannerKingsPolicy result = null;
-            if (SettlementPolicies.ContainsKey(settlement))
+            if (settlementPolicies.ContainsKey(settlement))
             {
-                HashSet<BannerKingsPolicy> policies = SettlementPolicies[settlement];
+                List<BannerKingsPolicy> policies = settlementPolicies[settlement];
                 BannerKingsPolicy policy = policies.FirstOrDefault(x => x.GetIdentifier() == policyType);
                 if (policy != null) result = policy;
             } else
             {
                 result = GeneratePolicy(settlement, policyType);
-                HashSet<BannerKingsPolicy> set = new HashSet<BannerKingsPolicy>();
+                List<BannerKingsPolicy> set = new List<BannerKingsPolicy>();
                 set.Add(result);
-                SettlementPolicies.Add(settlement, set);
+                settlementPolicies.Add(settlement, set);
             }
 
             if (result == null) result = GeneratePolicy(settlement, policyType);
@@ -226,8 +230,6 @@ namespace BannerKings.Managers
                 return new BKMilitiaPolicy(MilitiaPolicy.Balanced, settlement);
             if (policyType == "tax")
                 return new BKTaxPolicy(BKTaxPolicy.TaxType.Standard, settlement);
-            else if (policyType == "tariff")
-                return new BKTariffPolicy(BKTariffPolicy.TariffType.Standard, settlement);
             if (policyType == "workforce")
                 return new BKWorkforcePolicy(BKWorkforcePolicy.WorkforcePolicy.None, settlement);
             else if (policyType == "draft")
@@ -237,50 +239,46 @@ namespace BannerKings.Managers
 
         private void AddSettlementPolicy(Settlement settlement)
         {
-            SettlementPolicies.Add(settlement, new HashSet<BannerKingsPolicy>());
+            settlementPolicies.Add(settlement, new List<BannerKingsPolicy>());
         }
 
         private void AddSettlementDecision(Settlement settlement)
         {
-            SettlementDecisions.Add(settlement, new HashSet<BannerKingsDecision>());
+            settlementDecisions.Add(settlement, new List<BannerKingsDecision>());
         }
 
         public void UpdateSettlementPolicy(Settlement settlement, BannerKingsPolicy policy)
         {
-            if (SettlementPolicies.ContainsKey(settlement))
+            if (settlementPolicies.ContainsKey(settlement))
             {
-                HashSet<BannerKingsPolicy> policies = SettlementPolicies[settlement];
+                List<BannerKingsPolicy> policies = settlementPolicies[settlement];
                 BannerKingsPolicy target = policies.FirstOrDefault(x => x.GetIdentifier() == policy.GetIdentifier());
                 if (target != null) policies.Remove(target);
                 policies.Add(policy);
             }
-            else
-            {
-                AddSettlementPolicy(settlement);
-            }
+            else AddSettlementPolicy(settlement);
+            
         }
 
         public bool IsDecisionEnacted(Settlement settlement, string type)
         {
             BannerKingsDecision decision = null;
-            if (SettlementDecisions.ContainsKey(settlement))
-                decision = SettlementDecisions[settlement].FirstOrDefault(x => x.GetIdentifier() == type);
+            if (settlementDecisions.ContainsKey(settlement))
+                decision = settlementDecisions[settlement].FirstOrDefault(x => x.GetIdentifier() == type);
             return decision != null ? decision.Enabled : false;
         }
 
         public void UpdateSettlementDecision(Settlement settlement, BannerKingsDecision decision)
         {
-            if (SettlementDecisions.ContainsKey(settlement))
+            if (settlementDecisions.ContainsKey(settlement))
             {
-                HashSet<BannerKingsDecision> policies = SettlementDecisions[settlement];
+                List<BannerKingsDecision> policies = settlementDecisions[settlement];
                 BannerKingsDecision target = policies.FirstOrDefault(x => x.GetIdentifier() == decision.GetIdentifier());
                 if (target != null) policies.Remove(target);
                 policies.Add(decision);
             }
-            else
-            {
-                AddSettlementPolicy(settlement);
-            }
+            else AddSettlementPolicy(settlement);
+            
         }
     }
 }

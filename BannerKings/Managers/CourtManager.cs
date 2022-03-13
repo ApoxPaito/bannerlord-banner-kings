@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Localization;
+using TaleWorlds.SaveSystem;
 
 /*
     BSD 3-Clause License
@@ -41,7 +42,8 @@ namespace BannerKings.Managers
 {
     public class CourtManager
     {
-        private Dictionary<Clan, CouncilData> COUNCILS { get; set; }
+        [SaveableField(1)]
+        private Dictionary<Clan, CouncilData> COUNCILS;
 
         public CourtManager(Dictionary<Clan, CouncilData> councils)
         {

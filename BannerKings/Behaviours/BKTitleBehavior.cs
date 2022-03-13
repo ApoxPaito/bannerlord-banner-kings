@@ -79,7 +79,7 @@ namespace BannerKings.Behaviours
                             continue;
                         }    
                     
-                    if (title.deJure != title.deFacto)
+                    if (title.deJure != title.DeFacto)
                     {
                         BannerKingsConfig.Instance.TitleManager.DeactivateDeJure(title);
                         continue;
