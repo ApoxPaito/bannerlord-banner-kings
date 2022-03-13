@@ -36,6 +36,7 @@ namespace BannerKings.Managers.Policies
                 BannerKingsConfig.Instance.PolicyManager.UpdateSettlementPolicy(Settlement, this);
             }
         }
+
         public enum WorkforcePolicy
         {
             None,

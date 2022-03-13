@@ -7,6 +7,39 @@ using static BannerKings.Managers.Policies.BKMilitiaPolicy;
 using static BannerKings.Managers.Policies.BKCriminalPolicy;
 using BannerKings.Managers.Decisions;
 
+/*
+    BSD 3-Clause License
+
+    Copyright (c) 2021, Rodrigo Vaccari Melo
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+
+    1. Redistributions of source code must retain the above copyright notice, this
+       list of conditions and the following disclaimer.
+
+    2. Redistributions in binary form must reproduce the above copyright notice,
+       this list of conditions and the following disclaimer in the documentation
+       and/or other materials provided with the distribution.
+
+    3. Neither the name of the copyright holder nor the names of its
+       contributors may be used to endorse or promote products derived from
+       this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+    OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ */
+
 namespace BannerKings.Managers
 {
     public class PolicyManager
@@ -21,11 +54,8 @@ namespace BannerKings.Managers
                 yield return "decision_ration";
                 yield return "decision_militia_encourage";
                 yield return "decision_slaves_export";
-                yield return "decision_patrol_send";
-                yield return "decision_scout_send";
                 yield return "decision_militia_subsidize";
                 yield return "decision_tariff_exempt";
-                yield return "decision_foreigner_ban";
                 yield return "decision_slaves_tax";
                 yield return "decision_mercantilism";
                 yield break;
@@ -39,11 +69,8 @@ namespace BannerKings.Managers
                 yield return "decision_ration";
                 yield return "decision_militia_encourage";
                 yield return "decision_slaves_export";
-                yield return "decision_patrol_send";
-                yield return "decision_scout_send";
                 yield return "decision_militia_subsidize";
                 yield return "decision_tariff_exempt";
-                yield return "decision_foreigner_ban";
                 yield return "decision_slaves_tax";
                 yield return "decision_mercantilism";
                 yield break;
@@ -126,12 +153,20 @@ namespace BannerKings.Managers
             this.SettlementPolicies.Add(settlement, policies);
         }
 
-        public int GetActiveDecisionsNumber(Settlement settlement)
+        public int GetActiveCostlyDecisionsNumber(Settlement settlement)
         {
             if (this.SettlementDecisions.ContainsKey(settlement))
             {
-                HashSet<BannerKingsDecision> decisions = this.SettlementDecisions[settlement];
-                return decisions.Count(x => x.Enabled);
+                int i = 0;
+                foreach (BannerKingsDecision decision in this.SettlementDecisions[settlement])
+                    if (decision.Enabled)
+                    {
+                        string id = decision.GetIdentifier();
+                        if (id != "decision_mercantilism" && id != "decision_slaves_tax" && id != "decision_tariff_exempt")
+                            i += 1;
+                    }
+                        
+                return i;
             }
             return 0;
         }

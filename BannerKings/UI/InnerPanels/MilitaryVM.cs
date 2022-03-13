@@ -1,4 +1,5 @@
-﻿using BannerKings.Managers.Decisions;
+﻿using BannerKings.Components;
+using BannerKings.Managers.Decisions;
 using BannerKings.Managers.Policies;
 using BannerKings.Models;
 using BannerKings.Populations;
@@ -8,9 +9,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
+using static BannerKings.Managers.PopulationManager;
 
 namespace BannerKings.UI
 {
@@ -25,6 +28,7 @@ namespace BannerKings.UI
         private BKMilitiaPolicy militiaItem;
         private BKDraftPolicy draftItem;
         private Settlement settlement;
+        private DecisionElement raiseMilitiaButton;
 
         public MilitaryVM(PopulationData data, Settlement _settlement, bool selected) : base(data, selected)
         {
@@ -43,20 +47,20 @@ namespace BannerKings.UI
             ManpowerInfo.Clear();
             SiegeInfo.Clear();
             DefenseInfo.Add(new InformationElement("Militia Cap:", new BKMilitiaModel().GetMilitiaLimit(data, settlement).ToString(),
-                    "The maximum number of militiamen this settlement can support, based on it's population."));
+                   "The maximum number of militiamen this settlement can support, based on it's population."));
             DefenseInfo.Add(new InformationElement("Militia Quality:", FormatValue(new BKMilitiaModel().CalculateEliteMilitiaSpawnChance(settlement)),
-                    "Chance of militiamen being spawned as veterans instead of recruits."));
+                   "Chance of militiamen being spawned as veterans instead of recruits."));
 
             ManpowerInfo.Add(new InformationElement("Manpower:", base.data.MilitaryData.Manpower.ToString(),
-                    "Manpower"));
+                   "Total quantity of people available to be drafted or conscripted. Recruits will no longer replenish if manwpoer hits 0. Grows over time up to a cap based on total population."));
             ManpowerInfo.Add(new InformationElement("Noble Manpower:", base.data.MilitaryData.NobleManpower.ToString(),
-                   "Manpower"));
+                   "Quantity of nobles available to be drafted (elite recruits)."));
             ManpowerInfo.Add(new InformationElement("Peasant Manpower:", base.data.MilitaryData.PeasantManpower.ToString(),
-                   "Manpower"));
+                   "Quantity of peasants or freemen available to drafted as common recruits."));
             ManpowerInfo.Add(new InformationElement("Militarism:", base.FormatValue(base.data.MilitaryData.Militarism.ResultNumber),
-                   "Manpower"));
+                   "Represents the share of population that can become manpower. Increased militarism will make more people available for drafting."));
             ManpowerInfo.Add(new InformationElement("Draft Efficiency:", base.FormatValue(base.data.MilitaryData.DraftEfficiency.ResultNumber),
-                   "Manpower"));
+                   "How quickly recruits are replenished. Increased efficiency will allow for faster recruitment, so long manpower is available."));
 
             HashSet<BannerKingsDecision> decisions = BannerKingsConfig.Instance.PolicyManager.GetDefaultDecisions(settlement);
             if (base.HasTown)
@@ -81,8 +85,6 @@ namespace BannerKings.UI
                 GarrisonSelector.SelectedIndex = garrisonItem.Selected;
                 GarrisonSelector.SetOnChangeAction(this.garrisonItem.OnChange);
 
-                
-
                 BannerKingsDecision rationDecision = decisions.FirstOrDefault(x => x.GetIdentifier() == "decision_ration");
 
                 rationToogle = new DecisionElement()
@@ -92,6 +94,38 @@ namespace BannerKings.UI
                     this.RefreshValues();
 
                 }, new TextObject(rationDecision.GetHint()));
+            } 
+            else
+            {
+                RaiseMilitiaButton = new DecisionElement().SetAsButtonOption("Raise militia", delegate
+                {
+                    int serfs = data.GetTypeCount(PopType.Serfs);
+                    MobileParty party = settlement.MilitiaPartyComponent.MobileParty;
+                    Hero lord = settlement.OwnerClan.Leader;
+                    if (serfs >= party.MemberRoster.TotalManCount)
+                    {
+
+                        MobileParty existingParty = Campaign.Current.CampaignObjectManager.Find<MobileParty>(x => x.StringId == "raisedmilitia_" + settlement);
+                        if (existingParty == null)
+                        {
+                            if (party.CurrentSettlement != null && party.CurrentSettlement == settlement)
+                            {
+                                int menCount = party.MemberRoster.TotalManCount;
+                                MilitiaComponent.CreateMilitiaEscort("raisedmilitia_", settlement, settlement, "Raised Militia from {0}", Hero.MainHero.PartyBelongedTo, party);
+                                if (lord == Hero.MainHero)
+                                    InformationManager.DisplayMessage(new InformationMessage(string.Format("{0} men raised as militia at {1}!", menCount, settlement.Name)));
+                            }
+                        }
+                        else if (lord == Hero.MainHero)
+                            InformationManager.DisplayMessage(new InformationMessage(string.Format("Militia already raised from {0}", settlement.Name)));
+                        
+                        else if (lord == Hero.MainHero)
+                            InformationManager.DisplayMessage(new InformationMessage(string.Format("Not enough influence to raise militia at {0}", settlement.Name)));
+                    }
+                    else if (lord == Hero.MainHero)
+                        InformationManager.DisplayMessage(new InformationMessage(string.Format("Not enough men available to raise militia at {0}", settlement.Name)));
+
+                }, new TextObject("Raise the current militia of this village."));
             }
 
             militiaItem = (BKMilitiaPolicy)BannerKingsConfig.Instance.PolicyManager.GetPolicy(settlement, "militia");
@@ -122,18 +156,26 @@ namespace BannerKings.UI
                     this.RefreshValues();
 
                 }, new TextObject(subsidizeDecision.GetHint()));
+        }
 
-            
-
+        [DataSourceProperty]
+        public DecisionElement RaiseMilitiaButton
+        {
+            get => raiseMilitiaButton;
+            set
+            {
+                if (value != raiseMilitiaButton)
+                {
+                    raiseMilitiaButton = value;
+                    base.OnPropertyChangedWithValue(value, "RaiseMilitiaButton");
+                }
+            }
         }
 
         [DataSourceProperty]
         public SelectorVM<BKItemVM> DraftSelector
         {
-            get
-            {
-                return this.draftSelector;
-            }
+            get => this.draftSelector;
             set
             {
                 if (value != this.draftSelector)
@@ -147,10 +189,7 @@ namespace BannerKings.UI
         [DataSourceProperty]
         public SelectorVM<BKItemVM> GarrisonSelector
         {
-            get
-            {
-                return this.garrisonSelector;
-            }
+            get => this.garrisonSelector;   
             set
             {
                 if (value != this.garrisonSelector)
@@ -164,10 +203,7 @@ namespace BannerKings.UI
         [DataSourceProperty]
         public SelectorVM<BKItemVM> MilitiaSelector
         {
-            get
-            {
-                return this.militiaSelector;
-            }
+            get => this.militiaSelector;
             set
             {
                 if (value != this.militiaSelector)
